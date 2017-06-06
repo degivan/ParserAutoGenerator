@@ -1,35 +1,43 @@
 grammar Grammar;
 
-@header {
-    package ru.itmo.degtiarenko.translation.autogen.grammer;
-}
 
 gramm
-    : header? members? main? nonTerminalRule* terminalRule*
+    : header? nonTerminalRule* terminalRule*
     ;
 
 header
-    : '@header' LFBR CODE LFBR
-    ;
-
-members
-    : '@members' LFBR CODE LFBR
-    ;
-
-main
-    : '@main' LFBR CODE LFBR
+    : '@header' CODE
     ;
 
 nonTerminalRule
-    : NON_TERMINAL ':' nonTermProduction ('|' nonTermProduction)* ';'
+    : NON_TERMINAL ('->' synthesized)? ':' nonTermProduction ('|' nonTermProduction)* ';'
     ;
 
-nonTermProduction : (TERMINAL | NON_TERMINAL)+ ;
+nonTermProduction
+    : nonTermVar* CODE?
+    ;
+
+nonTermVar
+    : TERMINAL
+    | NON_TERMINAL
+    ;
 
 terminalRule
-    : TERMINAL ':' termProduction ('|' termProduction)* ';'
+    : TERMINAL ':' termProduction ('|' termProduction)* ('->' SKP)? ';'
     ;
 
 termProduction
-    : STRING+
+    : STRING
     ;
+
+synthesized
+    : MIXED_CASE
+    ;
+
+SKP: 'skip';
+NON_TERMINAL : [a-z][a-zA-Z_0-9]* ;
+TERMINAL : [A-Z][A-Z_0-9]* ;
+MIXED_CASE : [A-Za-z][a-z_A-Z0-9]* ;
+CODE : '{' (~[{}]+ CODE?)* '}' ;
+STRING: '"' (~('\n'| '|'))* '"';
+WS : [ \t\r\n]+ -> skip ;
