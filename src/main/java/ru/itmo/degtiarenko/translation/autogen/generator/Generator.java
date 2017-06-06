@@ -16,19 +16,27 @@ import java.nio.file.Paths;
  * Start class.
  */
 public class Generator {
+    private final static String GEN_PATH = "src/main/generated/ru/itmo/degtiarenko/translation/autogen/";
+
     public static void main(String[] args) throws IOException {
-        InputStream input = new FileInputStream(Paths.get("src/main/resources/Java.gramm")
+        InputStream input = new FileInputStream(Paths.get("src/main/resources/expression.gramm")
                 .toFile());
-        File tokenFile = new File("src/main/generated/ru/itmo/degtiarenko/translation/autogen/Token.java");
-        File lexerFile = new File("src/main/generated/ru/itmo/degtiarenko/translation/autogen/OurLexer.java");
+        File tokenFile = new File(GEN_PATH + "Token.java");
+        File lexerFile = new File(GEN_PATH + "OurLexer.java");
+        File parserFile = new File(GEN_PATH +"OurParser.java");
         tokenFile.getParentFile().mkdirs();
 
         GenerateGrammarListener listener = walk(input);
 
-        LexerGenerator lexGen = new LexerGenerator(listener.getTerminals(), listener.getHeader());
+        LexerGenerator lexGen = new LexerGenerator(listener.getTerminals(), listener.getHeader(), listener.getPrior());
 
         lexGen.generateTokenFile(tokenFile);
         lexGen.generateLexerFile(lexerFile);
+
+        ParserGenerator parseGen = new ParserGenerator(listener.getTerminals(), listener.getNonTerminals(),
+                listener.getStart(), listener.getHeader());
+
+        parseGen.generateParser(parserFile);
 
         System.out.println(listener.getHeader());
         System.out.println(listener.getTerminals().toString());

@@ -6,7 +6,9 @@ import ru.itmo.degtiarenko.translation.autogen.generator.nodes.TermNode;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.Comparator;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.joining;
 
@@ -16,10 +18,12 @@ import static java.util.stream.Collectors.joining;
 public class LexerGenerator {
     private final Map<String, TermNode> terminals;
     private final String header;
+    private final Map<String, Integer> prior;
 
-    public LexerGenerator(Map<String, TermNode> terminals, String header) {
+    public LexerGenerator(Map<String, TermNode> terminals, String header, Map<String, Integer> prior) {
         this.terminals = terminals;
         this.header = header;
+        this.prior = prior;
     }
 
     public void generateTokenFile(File tokenFile) throws FileNotFoundException {
@@ -90,18 +94,29 @@ public class LexerGenerator {
         out.println("\t\t\tcurToken = Token.EOF;");
         out.println("\t\t\treturn;");
         out.println("\t\t}");
-
+        out.println("\t\tboolean maxPatternFlag = false;");
+        out.println("\t\tboolean skipFlag = false;");
+        out.println("\t\tboolean returnFlag = false;");
+        out.println("\t\tfor(int i = 0 ; i < 1000; i++) {\n");
+        out.println("\t\t\tcurString += (char) curChar;");
         boolean first = true;
-        for (String curStringTerminal : terminals.keySet()) {
-            out.println(String.format((first ? "\t\tif" : "\t\telse if") +
+        for (String curStringTerminal : terminals.keySet().stream().sorted(Comparator.comparingInt(prior::get))
+                .collect(Collectors.toList())) {
+            out.println(String.format((first ? "\t\t\tif" : "\t\t\telse if") +
                     " (patterns.get(Token.%1$s).stream().anyMatch(p -> p.matcher(curString).matches())) {\n" +
-                    "\t\t\tcurToken = Token.%1$s;\n" +
-                    "\t\t}", curStringTerminal.toUpperCase()));
+                    "\t\t\t\tcurToken = Token.%1$s;\n" +
+                    (terminals.get(curStringTerminal).isSkip() ?"\t\t\t\tskipFlag = true;\n" : "\n")+
+                    "\t\t\t\treturnFlag = true;\n" +
+                    "\t\t\t}", curStringTerminal.toUpperCase()));
             first = false;
         }
-        out.println("\t\telse throw new AssertionError(\"Illegal character \" + (char) curChar);");
-        out.println("\t\tcurString += (char) curChar;");
-        out.println("\t\tnextChar();");
+        out.println("\t\t\telse if(returnFlag) {maxPatternFlag = true;}");
+        out.println("\t\t\tif (returnFlag && maxPatternFlag) { curString = curString.substring(0, curString.length() - 1);" +
+                "return;}");
+        out.println("\t\t\tnextChar();");
+        out.println("\t\t\tif(skipFlag) {nextToken();}");
+        out.println("\t\t}");
+        out.println("\t\tthrow new AssertionError();");
         out.println("\t}\n}");
         out.close();
     }

@@ -1,0 +1,33 @@
+@header {
+package ru.itmo.degtiarenko.translation.autogen;
+}
+
+start -> Integer
+    : t e1[{return t.get(0);}] {return e1.get(0);}
+    ;
+
+e1[Integer acc] -> Integer
+    : PLUS t e1[{return acc - t.get(0);}] {return e1.get(0);}
+    | {return acc;}
+    ;
+
+t -> Integer
+    : f t1[{return f.get(0);}] {return t1.get(0);}
+    ;
+
+t1[Integer acc] -> Integer
+    : MUL f t1[{return f.get(0) * acc;}] {return t1.get(0);}
+    | {return acc;}
+    ;
+
+f -> Integer
+    : NUMBER {return Integer.valueOf(NUMBER.get(0));}
+    | OPEN_BRACKET start CLOSE_BRACKET {return start.get(0);}
+    ;
+
+WS: " " -> skip;
+OPEN_BRACKET: "\\(";
+CLOSE_BRACKET: "\\)";
+PLUS: "-";
+MUL: "\\*";
+NUMBER : "[0-9]+";

@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
  * Created by Иван on 06.06.2017.
  */
 public class Production extends Node {
-    private String code;
+    private String code = "";
 
     public Production() {
         super("production");
@@ -24,5 +24,9 @@ public class Production extends Node {
                 .map(Node::getName)
                 .collect(Collectors.joining()) +
                 '}';
+    }
+
+    public String getCode() {
+        return code;
     }
 }

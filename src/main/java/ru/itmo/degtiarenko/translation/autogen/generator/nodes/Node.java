@@ -28,10 +28,23 @@ public class Node {
     }
 
     @Override
+    public boolean equals(Object o) {
+        return (getClass() == o.getClass() && name.equals(((Node) o).name));
+    }
+
+    @Override
     public String toString() {
         return "Node{" +
                 "name='" + name + '\'' +
                 ", children=" + children +
                 "}\n";
+    }
+
+    public int size() {
+        return children.size();
+    }
+
+    public Node get(int i) {
+        return children.get(i);
     }
 }

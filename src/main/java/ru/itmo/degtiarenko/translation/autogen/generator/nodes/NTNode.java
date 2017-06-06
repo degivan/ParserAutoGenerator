@@ -8,7 +8,7 @@ import java.util.*;
 public class NTNode extends Node {
 
     private Map<String, String> declAttributes = new HashMap<>();
-    private String returnType = "";
+    private String returnType = "void";
 
     private List<Production> productions = new ArrayList<>();
     private List<String> callAttrs = new ArrayList<>();
@@ -21,8 +21,20 @@ public class NTNode extends Node {
         declAttributes.put(type, name);
     }
 
-    public Map<String, String> getDeclAttributes() {
-        return declAttributes;
+    public String getDeclAttrs(boolean withTypes) {
+        StringBuilder builder = new StringBuilder();
+        Iterator<Map.Entry<String, String>> iterator = declAttributes.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> entry = iterator.next();
+            if (withTypes) {
+                builder.append(entry.getValue()).append(" ");
+            }
+            builder.append(entry.getKey());
+            if (iterator.hasNext()) {
+                builder.append(", ");
+            }
+        }
+        return builder.toString();
     }
 
     public void setReturnType(String returnType) {
@@ -53,5 +65,20 @@ public class NTNode extends Node {
                 ", productions=" + productions +
                 (callAttrs.size() != 0 ? ", callAttrs=" + callAttrs : "")+
                 "}\n";
+    }
+
+    public String getCallAttrs() {
+        StringBuilder builder = new StringBuilder();
+        Iterator<String> iterator = callAttrs.iterator();
+        while (iterator.hasNext()) {
+            String entry = iterator.next();
+            builder.append("((Supplier<Integer>) () ->");
+            builder.append(entry);
+            builder.append(").get()");
+            if (iterator.hasNext()) {
+                builder.append(", ");
+            }
+        }
+        return builder.toString();
     }
 }

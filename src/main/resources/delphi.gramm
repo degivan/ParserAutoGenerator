@@ -1,0 +1,29 @@
+@header {
+package ru.itmo.degtiarenko.translation.autogen;
+}
+
+programm
+    : VAR NAME COL type
+    ;
+
+type
+    : ARRAY interval OF type SEMI
+    | INTEGER
+    ;
+
+interval
+    : O NUMBER DOTS NUMBER C
+    ;
+
+OF: "of";
+WS: " " -> skip;
+VAR: "var";
+INTEGER: "integer";
+ARRAY: "array";
+O: "\\[";
+DOTS: "\\..";
+NUMBER: "[0-9]+";
+C: "\\]";
+SEMI: ";";
+COL: ":";
+NAME: "\\p{Alpha}\\p{Alnum}*";

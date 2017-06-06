@@ -12,7 +12,7 @@ public class Nodes {
     }
 
     public static NTNode nonTermNode(Node node) {
-        if (node instanceof TermNode) {
+        if (node instanceof NTNode) {
             return (NTNode) node;
         }
         return null;

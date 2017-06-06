@@ -19,10 +19,14 @@ public class GenerateGrammarListener extends GrammarBaseListener {
     private static final String EPS = "EPS";
     public static final String EOF = "EOF";
 
+    private Map<String, Integer> prior = new HashMap<>();
     private Map<String, NTNode> nonTerminals = new HashMap<>();
     private Map<String, TermNode> terminals = new HashMap<>();
 
+    private int curPrior = 0;
     private String header;
+
+    private NTNode start = null;
 
     @Override
     public void enterTerminalRule(@NotNull GrammarParser.TerminalRuleContext ctx) {
@@ -31,12 +35,19 @@ public class GenerateGrammarListener extends GrammarBaseListener {
 
         ctx.termProduction().forEach(tpc -> node.addChild(new Node(tpc.STRING().getText())));
 
+        node.setSkip(ctx.SKP()!= null);
+        prior.put(node.getName(), curPrior);
+        curPrior++;
         terminals.put(node.getName(), node);
     }
 
     @Override
     public void enterNonTerminalRule(@NotNull GrammarParser.NonTerminalRuleContext ctx) {
         NTNode node = new NTNode(ctx.NON_TERMINAL().getText());
+
+        if(start == null) {
+            start = node;
+        }
 
         if (ctx.inherited() != null) {
             ctx.inherited().declAttrs().arg().forEach(arg -> node.putDeclAttribute(arg.argName().getText(), arg.argType().getText()));
@@ -54,8 +65,10 @@ public class GenerateGrammarListener extends GrammarBaseListener {
             node.addProduction(production);
 
             if (ntp.nonTermVar().isEmpty()) {
+                prior.putIfAbsent(EPS, curPrior);
+                curPrior++;
                 terminals.putIfAbsent(EPS, new TermNode(EPS));
-                production.addChild(node);
+                production.addChild(terminals.get(EPS));
             }
 
             ntp.nonTermVar().forEach(ntv -> {
@@ -90,6 +103,8 @@ public class GenerateGrammarListener extends GrammarBaseListener {
     }
 
     public void afterWalk() {
+        prior.put(EOF, curPrior);
+        curPrior++;
         terminals.put(EOF, new TermNode(EOF));
     }
 
@@ -107,5 +122,13 @@ public class GenerateGrammarListener extends GrammarBaseListener {
 
     public String getHeader() {
         return header;
+    }
+
+    public NTNode getStart() {
+        return start;
+    }
+
+    public Map<String, Integer> getPrior() {
+        return prior;
     }
 }
