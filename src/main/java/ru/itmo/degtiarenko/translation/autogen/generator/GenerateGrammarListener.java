@@ -16,7 +16,9 @@ import static java.util.stream.Collectors.toList;
  * Printing all tokens.
  */
 public class GenerateGrammarListener extends GrammarBaseListener {
-    public static final String EPS = "eps";
+    private static final String EPS = "EPS";
+    public static final String EOF = "EOF";
+
     private Map<String, NTNode> nonTerminals = new HashMap<>();
     private Map<String, TermNode> terminals = new HashMap<>();
 
@@ -73,7 +75,7 @@ public class GenerateGrammarListener extends GrammarBaseListener {
                 production.addChild(nextLevel);
             });
 
-            if(ntp.CODE() != null) {
+            if (ntp.CODE() != null) {
                 production.setCode(ntp.CODE().getText());
             }
         });
@@ -84,7 +86,15 @@ public class GenerateGrammarListener extends GrammarBaseListener {
     @Override
     public void enterHeader(@NotNull GrammarParser.HeaderContext ctx) {
 
-        header = ctx.CODE().getText();
+        header = cutBracketsAndSpaces(ctx.CODE().getText());
+    }
+
+    public void afterWalk() {
+        terminals.put(EOF, new TermNode(EOF));
+    }
+
+    private String cutBracketsAndSpaces(String text) {
+        return text.substring(1, text.length() - 1).replaceAll("\\n", "");
     }
 
     public Map<String, NTNode> getNonTerminals() {

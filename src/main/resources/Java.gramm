@@ -1,3 +1,7 @@
+@header {
+    package ru.itmo.degtiarenko.translation.autogen;
+}
+
 programm
     : classDecl LFBR insideClass RFBR
     ;
@@ -188,9 +192,9 @@ WS: " " -> skip;
 NEW_LINE: "\n" | "\r" -> skip;
 TAB: "  " -> skip;
 COMMA: ",";
-LBR: "(";
-RBR: ")";
-LFBR: "{";
+LBR: "\\(";
+RBR: "\\)";
+LFBR: "\\{";
 RFBR: "}";
 DO: "do";
 PUBLIC: "public";
@@ -211,5 +215,5 @@ INT_LITERAL: "\\p{Digit}+";
 BOOL_LITERAL: "false" | "true";
 STRING_LITERAL: "\"(.*?)\"";
 COMP_SIGN: ">" | ">=" | "==" | "<=" | "<" ;
-ARYTHM: "+" | "-" | "*" | "/";
+ARYTHM: "\\+" | "-" | "\\*" | "/";
 NAME: "[a-zA-Z_][a-zA-Z0-9_]*";
