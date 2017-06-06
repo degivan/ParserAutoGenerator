@@ -2,7 +2,7 @@ package ru.itmo.degtiarenko.translation.autogen.generator;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTreeListener;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import ru.itmo.degtiarenko.translation.autogen.grammar.GrammarLexer;
 import ru.itmo.degtiarenko.translation.autogen.grammar.GrammarParser;
 
@@ -20,10 +20,13 @@ public class Generator {
                 .toFile());
         GrammarLexer lexer = new GrammarLexer(new ANTLRInputStream(input));
         GrammarParser parser = new GrammarParser(new CommonTokenStream(lexer));
+        ParseTreeWalker walker = new ParseTreeWalker();
+        GenerateGrammarListener listener = new GenerateGrammarListener();
 
-        ParseTreeListener listener = new GrammarTestListener();
-        parser.addParseListener(listener);
-        parser.gramm();
-        parser.removeParseListener(listener);
+        walker.walk(listener, parser.gramm());
+
+        System.out.println(listener.getHeader());
+        System.out.println(listener.getTerminals().toString());
+        System.out.println(listener.getNonTerminals().toString());
     }
 }
