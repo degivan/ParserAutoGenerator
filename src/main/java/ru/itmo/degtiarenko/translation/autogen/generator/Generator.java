@@ -16,7 +16,7 @@ import java.nio.file.Paths;
  */
 public class Generator {
     public static void main(String[] args) throws IOException {
-        InputStream input = new FileInputStream(Paths.get("src/main/antlr4/Java.gramm")
+        InputStream input = new FileInputStream(Paths.get("src/main/resources/Java.gramm")
                 .toFile());
         GrammarLexer lexer = new GrammarLexer(new ANTLRInputStream(input));
         GrammarParser parser = new GrammarParser(new CommonTokenStream(lexer));

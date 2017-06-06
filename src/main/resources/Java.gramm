@@ -180,8 +180,8 @@ parameters
     | parameter
     ;
 
-parameter
-    : TYPE NAME
+parameter -> int
+    : TYPE NAME {return 2;}
     ;
 
 WS: " " -> skip;

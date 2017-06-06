@@ -10,7 +10,7 @@ header
     ;
 
 nonTerminalRule
-    : NON_TERMINAL ('->' synthesized)? ':' nonTermProduction ('|' nonTermProduction)* ';'
+    : NON_TERMINAL inherited? synthesized? ':' nonTermProduction ('|' nonTermProduction)* ';'
     ;
 
 nonTermProduction
@@ -19,7 +19,32 @@ nonTermProduction
 
 nonTermVar
     : TERMINAL
-    | NON_TERMINAL
+    | NON_TERMINAL callAttrs?
+    ;
+
+inherited
+    : declAttrs
+    ;
+
+declAttrs
+    : '[' arg (',' arg)* ']'
+    ;
+arg
+    : argType argName
+    ;
+
+argType
+    : NON_TERMINAL
+    | MIXED_CASE
+    ;
+
+argName
+    : NON_TERMINAL
+    | MIXED_CASE
+    ;
+
+callAttrs
+    : '[' CODE (',' CODE)* ']'
     ;
 
 terminalRule
@@ -31,7 +56,7 @@ termProduction
     ;
 
 synthesized
-    : MIXED_CASE
+    : '->' (NON_TERMINAL | MIXED_CASE)
     ;
 
 SKP: 'skip';
